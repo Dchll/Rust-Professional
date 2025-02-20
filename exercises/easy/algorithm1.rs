@@ -29,13 +29,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Ord+Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Ord+Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -72,11 +72,49 @@ impl<T> LinkedList<T> {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merged_list = LinkedList::new();
+        let mut vec_a = vec![];
+        let mut vec_b = vec![];
+
+        
+        let mut current = list_a.start;
+        while let Some(ptr) = current {
+            unsafe {
+                vec_a.push((*ptr.as_ptr()).val.clone());
+                current = (*ptr.as_ptr()).next;
+            }
         }
+
+        let mut current = list_b.start;
+        while let Some(ptr) = current {
+            unsafe {
+                vec_b.push((*ptr.as_ptr()).val.clone());
+                current = (*ptr.as_ptr()).next;
+            }
+        }
+
+        let mut i = 0;
+        let mut j = 0;
+        while i < vec_a.len() && j < vec_b.len() {
+            if vec_a[i] <= vec_b[j] {
+                merged_list.add(vec_a[i].clone());
+                i += 1;
+            } else {
+                merged_list.add(vec_b[j].clone());
+                j += 1;
+            }
+        }
+
+        while i < vec_a.len() {
+            merged_list.add(vec_a[i].clone());
+            i += 1;
+        }
+        while j < vec_b.len() {
+            merged_list.add(vec_b[j].clone());
+            j += 1;
+        }
+
+        merged_list
 	}
 }
 
